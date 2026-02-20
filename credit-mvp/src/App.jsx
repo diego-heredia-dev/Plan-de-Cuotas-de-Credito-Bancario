@@ -1,10 +1,75 @@
 import { useState } from "react";
+import { supabase } from "./supabaseClient";
+import { useEffect } from "react";
 import "./App.css";
+
 let planIdCounter = 1;
 
 //App() is called each time there is rerendered
 function App() {
   const [clients, setClients] = useState([]);
+  
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  useEffect(() => {
+    fetchClients();
+    fetchPlans();
+  }, []);
+
+  const fetchClients = async () => {
+    const { data, error } = await supabase
+      .from("clients")
+      .select("*");
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    setClients(data);
+  };
+
+  const fetchPlans = async () => {
+    const { data: plansData, error } = await supabase
+      .from("plans")
+      .select("*");
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    const { data: installmentsData } = await supabase
+      .from("installments")
+      .select("*");
+
+    const plansWithSchedule = plansData.map((plan) => ({
+      id: plan.id,
+      clientDni: plan.client_dni,
+      amount: Number(plan.amount),
+      termMonths: plan.term_months,
+      installmentValue: Number(plan.installment_value),
+      totalToPay: Number(plan.total_to_pay),
+      interestType: plan.interest_type,
+      status: plan.status,
+      schedule: installmentsData
+        .filter((inst) => inst.plan_id === plan.id)
+        .map((inst) => ({
+          number: inst.number,
+          installmentValue: Number(inst.installment_value),
+          interest: Number(inst.interest),
+          capital: Number(inst.capital),
+          remainingBalance: Number(inst.remaining_balance),
+          dueDate: inst.due_date,
+          status: inst.status
+        }))
+    }));
+
+    setPlans(plansWithSchedule);
+  };
+
   const boliviaDepartments = [
     "La Paz",
     "Santa Cruz",
@@ -86,11 +151,12 @@ function App() {
     };
   };
 
-  const createPlan = () => {
+  const createPlan = async () => {
     if (
       !newPlan.clientDni ||
       !newPlan.amount ||
-      !newPlan.termMonths
+      !newPlan.termMonths ||
+      !newPlan.interestRate
     ) {
       alert("Todos los campos del plan son obligatorios");
       return;
@@ -98,20 +164,6 @@ function App() {
 
     if (Number(newPlan.termMonths) < 12) {
       alert("El plazo debe ser mayor o igual a 12 meses");
-      return;
-    }
-
-    const clientExists = clients.some(
-      (client) => client.dni === newPlan.clientDni
-    );
-
-    if (!clientExists) {
-      alert("El cliente no existe");
-      return;
-    }
-
-    if(!newPlan.interestRate) {
-      alert("Debe ingresar la tasa de interés");
       return;
     }
 
@@ -125,73 +177,96 @@ function App() {
     const amount = Number(newPlan.amount);
     const termMonths = Number(newPlan.termMonths);
 
-    let result;
+    const result =
+      newPlan.interestType === "simple"
+        ? generateSimpleSchedule(amount, termMonths, annualRate)
+        : generateSchedule(amount, termMonths, annualRate);
 
-    if (newPlan.interestType === "simple") {
-      result = generateSimpleSchedule(amount, termMonths, annualRate);
-    } else {
-      result = generateSchedule(amount, termMonths, annualRate);
+    const { totalToPay, installmentValue, schedule } = result;
+
+    // 1️⃣ Insertar plan
+    const { data: planData, error: planError } = await supabase
+      .from("plans")
+      .insert([
+        {
+          client_dni: newPlan.clientDni,
+          amount,
+          term_months: termMonths,
+          interest_rate: annualRate,
+          interest_type: newPlan.interestType,
+          total_to_pay: totalToPay,
+          installment_value: installmentValue,
+          status: "draft"
+        }
+      ])
+      .select();
+
+    if (planError) {
+      console.log(planError);
+      alert(planError.message);
+      return;
     }
 
-    const {totalToPay, installmentValue, schedule} = result;
+    const createdPlan = planData[0];
 
+    // 2️⃣ Insertar cuotas
+    const installmentsToInsert = schedule.map((inst) => ({
+      plan_id: createdPlan.id,
+      number: inst.number,
+      installment_value: inst.installmentValue,
+      interest: inst.interest,
+      capital: inst.capital,
+      remaining_balance: inst.remainingBalance,
+      due_date: inst.dueDate,
+      status: inst.status
+    }));
 
-    const planWithId = {
-      id: planIdCounter++,
-      clientDni: newPlan.clientDni,
-      amount,
-      termMonths,
-      interestRate: annualRate,
-      interestType: newPlan.interestType,
-      totalToPay,
-      installmentValue,
-      schedule,
-      status: "draft"
-    };
+    const { error: installmentError } = await supabase
+      .from("installments")
+      .insert(installmentsToInsert);
 
-    setPlans([...plans, planWithId]);
+    if (installmentError) {
+      console.log(installmentError);
+      alert(installmentError.message);
+      return;
+    }
 
-    setNewPlan({
-      clientDni: "",
-      amount: "",
-      termMonths: "",
-      interestRate: "",
-      interestType: "frances"
-    });
+    alert("Plan guardado en Supabase");
+
+    await fetchPlans(); // lo crearemos ahora
   };
 
   const generateSimpleSchedule = (amount, termMonths, annualRate) => {
-  const totalInterest = amount * annualRate;
-  const totalToPay = amount + totalInterest;
-  const installmentValue = totalToPay / termMonths;
+    const totalInterest = amount * annualRate;
+    const totalToPay = amount + totalInterest;
+    const installmentValue = totalToPay / termMonths;
 
-  const schedule = [];
+    const schedule = [];
 
-  for (let i = 1; i <= termMonths; i++) {
-    const dueDate = new Date();
-    dueDate.setMonth(dueDate.getMonth() + i);
+    for (let i = 1; i <= termMonths; i++) {
+      const dueDate = new Date();
+      dueDate.setMonth(dueDate.getMonth() + i);
 
-    schedule.push({
-      number: i,
+      schedule.push({
+        number: i,
+        installmentValue,
+        interest: totalInterest / termMonths,
+        capital: amount / termMonths,
+        remainingBalance: amount - (amount / termMonths) * i,
+        dueDate: dueDate.toISOString().split("T")[0],
+        status: "pending"
+      });
+    }
+
+    return {
+      totalToPay,
       installmentValue,
-      interest: totalInterest / termMonths,
-      capital: amount / termMonths,
-      remainingBalance: amount - (amount / termMonths) * i,
-      dueDate: dueDate.toISOString().split("T")[0],
-      status: "pending"
-    });
-  }
-
-  return {
-    totalToPay,
-    installmentValue,
-    schedule
+      schedule
+    };
   };
-};
 
 
-  const createClient = () => {
-    //if all fields are not filled, Alert!
+  const createClient = async () => {
     if (
       !newClient.name ||
       !newClient.lastName ||
@@ -205,18 +280,29 @@ function App() {
       return;
     }
 
-    //validar DNI unico
-    const dniExists = clients.some(
-      (client) => client.dni === newClient.dni
-    );
-    if (dniExists) {
-      alert("ya existe un cliente con ese DNI");
+    const { data, error } = await supabase
+      .from("clients")
+      .insert([
+        {
+          dni: newClient.dni,
+          name: newClient.name,
+          last_name: newClient.lastName,
+          birth_date: newClient.birthDate,
+          phone: newClient.phoneNumber,
+          email: newClient.email,
+          department: newClient.department
+        }
+      ]);
+
+    if (error) {
+      console.log("ERROR COMPLETO:", error);
+      alert(error.message);
       return;
     }
 
-    setClients([...clients, newClient]);
+    alert("Cliente guardado en Supabase");
+    await fetchClients();
 
-    //reset form
     setNewClient({
       name: "",
       lastName: "",
