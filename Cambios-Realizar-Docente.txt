@@ -1,0 +1,22 @@
+-usar tel para teléfono en lugar de text
+-Dividir la pagina en dos secciones: Clientes y Cuotas
+-El monto mostrarlo con .00 e indicar la moneda, de igual manera que se muestra total a pagar y cuota mensual
+-Crear una calculadora cambie mientras se cambie los inputs de crear plan de cuotas y que muestre:
+Cliente DNI: 1
+
+Monto: 2000
+
+Total a pagar: 2032.65
+
+Cuota mensual: 169.39
+
+Tipo de plan: frances
+
+
+Pero que no muestre lo que seria el cronograma
+
+
+-Mejorar el cronograma, que sea dos lineas donde la primera muestre el numero de cuota, vence y estado
+Y la segunda linea muestre el interés, capital, saldo
+
+Tambien que todo se muestre en español y que la fecha este en dd-mm-yy
