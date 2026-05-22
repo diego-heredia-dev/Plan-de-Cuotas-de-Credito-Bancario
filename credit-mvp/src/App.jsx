@@ -1,7 +1,12 @@
+import React from 'react'
 import { useState } from "react";
 import { supabase } from "./supabaseClient";
 import { useEffect } from "react";
 import "./App.css";
+import {
+  generateSchedule,
+  generateSimpleSchedule
+} from './services/paymentPlanService';
 
 let planIdCounter = 1;
 
@@ -29,92 +34,6 @@ function App() {
     }
 
     setClients(data);
-  };
-
-  const generateSchedule = (amount, termMonths, annualRate) => {
-    const monthlyRate = annualRate / 12;
-    const installmentValue =
-      amount *
-      (monthlyRate * Math.pow(1 + monthlyRate, termMonths)) / 
-      (Math.pow(1 + monthlyRate, termMonths) - 1);
-
-    let remainingBalance = amount;
-
-    const schedule = [];
-
-    for (let i = 1; i <= termMonths; i++) {
-      const interestPortion = remainingBalance * monthlyRate;
-      const capitalPortion = installmentValue - interestPortion;
-
-      remainingBalance -= capitalPortion;
-
-      const dueDate = new Date();
-      dueDate.setMonth(dueDate.getMonth() + i);
-
-      schedule.push({
-        number: i,
-        installmentValue,
-        interest: interestPortion,
-        capital: capitalPortion,
-        remainingBalance: remainingBalance < 0 ? 0 : remainingBalance,
-        dueDate: dueDate.toISOString().split("T")[0],
-        status: "pending"
-      });
-    }
-
-    const totalToPay = installmentValue * termMonths;
-
-    if (termMonths <= 0) {
-      throw new Error("termMonths must be greater than 0");
-    }
-
-    if (amount <= 0) {
-      throw new Error("Amount must be greater than 0");
-    }
-
-    if (annualRate <= 0) {
-      throw new Error("annualRate must be greater than 0");
-    }
-      
-
-    return {
-      totalToPay,
-      installmentValue,
-      schedule
-    };
-  };
-
-  const generateSimpleSchedule = (amount, termMonths, annualRate) => {
-    if (termMonths <= 0) {
-      throw new Error("Invalid term months");
-    }
-
-    const totalInterest = amount * annualRate;
-    const totalToPay = amount + totalInterest;
-    const installmentValue = totalToPay / termMonths;
-
-    const schedule = [];
-
-    for (let i = 1; i <= termMonths; i++) {
-      const dueDate = new Date();
-      dueDate.setMonth(dueDate.getMonth() + i);
-
-      schedule.push({
-        number: i,
-        installmentValue,
-        interest: totalInterest / termMonths,
-        capital: amount / termMonths,
-        remainingBalance: amount - (amount / termMonths) * i,
-        dueDate: dueDate.toISOString().split("T")[0],
-        status: "pending"
-      });
-    }
-
-    return {
-      totalToPay,
-      installmentValue,
-      schedule
-    };
   };
 
   const createPlan = async () => {
