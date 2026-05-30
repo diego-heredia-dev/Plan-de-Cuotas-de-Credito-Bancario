@@ -5,6 +5,7 @@ import {
 
 //
 describe("paymentPlanService.test.js", () => {
+    /*
     test("generateSchedule_ValidTermMonths_12installments", () => {
         //Arrange
         const amount = 12000;
@@ -17,7 +18,7 @@ describe("paymentPlanService.test.js", () => {
         //Assert
         expect(result.schedule.length).toBe(12);
     });
-    /*
+    */
     //plazo valido
     test("generateSchedule_InvalidTermMonths_ThrowsError", () => {
         //Arrange
@@ -30,7 +31,7 @@ describe("paymentPlanService.test.js", () => {
             generateSchedule(amount, termMonths, annualRate);
         }).toThrow("Los meses deben mayor a 0");
     })
-
+    /*
     test("generateSchedule_InvalidAnnualRate_ThrowsError", () => {
         //Arrange
         const amount = 10000;
