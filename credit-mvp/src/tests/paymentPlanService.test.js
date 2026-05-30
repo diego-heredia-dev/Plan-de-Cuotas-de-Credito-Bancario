@@ -43,7 +43,7 @@ describe("paymentPlanService.test.js", () => {
             generateSchedule(amount, termMonths, annualRate);
         }).toThrow("La tasa anual debe ser mayor a 0");
     });
-    /*
+    
     test("generateSimpleSchedule_ValidInput_CalculatesTotalToPay", () => {
         //Arrange
         const amount = 1000;
@@ -56,5 +56,4 @@ describe("paymentPlanService.test.js", () => {
         //Assert
         expect(result.totalToPay).toBe(1100);
     });
-    */
 });
