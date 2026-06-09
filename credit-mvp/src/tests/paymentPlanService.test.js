@@ -29,7 +29,7 @@ describe("paymentPlanService.test.js", () => {
         //Act & Assert
         expect(() => {
             generateSchedule(amount, termMonths, annualRate);
-        }).toThrow("Los meses deben mayor a 0");
+        }).toThrow("termMonths must be greater than 0");
     })
     
     test("generateSchedule_InvalidAnnualRate_ThrowsError", () => {
@@ -41,7 +41,7 @@ describe("paymentPlanService.test.js", () => {
         //Act & Arrange
         expect(() => {
             generateSchedule(amount, termMonths, annualRate);
-        }).toThrow("La tasa anual debe ser mayor a 0");
+        }).toThrow("annualRate must be greater than 0");
     });
     
     test("generateSimpleSchedule_ValidInput_CalculatesTotalToPay", () => {
