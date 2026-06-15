@@ -32,15 +32,15 @@ export const generateSchedule = (amount, termMonths, annualRate) => {
   const totalToPay = installmentValue * termMonths;
 
   if (termMonths <= 0) {
-    throw new Error("termMonths must be greater than 0");
+    throw new Error("El plazo debe ser mayor a 0");
   }
 
   if (amount <= 0) {
-    throw new Error("Amount must be greater than 0");
+    throw new Error("La cantidad debe ser mayor a 0");
   }
 
   if (annualRate <= 0) {
-    throw new Error("annualRate must be greater than 0");
+    throw new Error("La tasa de interes anual debe ser mayor a 0");
   }
     
 

@@ -19,7 +19,6 @@ describe("paymentPlanService.test.js", () => {
         expect(result.schedule.length).toBe(12);
     });
     
-    //plazo valido
     test("generateSchedule_InvalidTermMonths_ThrowsError", () => {
         //Arrange
         const amount = 10000;
@@ -29,7 +28,7 @@ describe("paymentPlanService.test.js", () => {
         //Act & Assert
         expect(() => {
             generateSchedule(amount, termMonths, annualRate);
-        }).toThrow("termMonths must be greater than 0");
+        }).toThrow("El plazo debe ser mayor a 0");
     })
     
     test("generateSchedule_InvalidAnnualRate_ThrowsError", () => {
@@ -41,7 +40,7 @@ describe("paymentPlanService.test.js", () => {
         //Act & Arrange
         expect(() => {
             generateSchedule(amount, termMonths, annualRate);
-        }).toThrow("annualRate must be greater than 0");
+        }).toThrow("La tasa de interes anual debe ser mayor a 0");
     });
     
     test("generateSimpleSchedule_ValidInput_CalculatesTotalToPay", () => {
