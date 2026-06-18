@@ -5,7 +5,6 @@ import {
 } from "../services/paymentPlanService";
 
 describe("finalExam.test.js", () => {
-    
     test("validatePlanInputs_TermLessThan12Months_ThrowsError", () => {
         //Arrange
         const amount = 10000;
