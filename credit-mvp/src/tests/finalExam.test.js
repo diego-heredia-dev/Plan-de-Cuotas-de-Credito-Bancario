@@ -13,8 +13,19 @@ describe("finalExam.test.js", () => {
 
         //Act & Assert
         expect(() => {
-            validatePlanInputs(amount, termMonths, annualRate)
+            validatePlanInputs(amount, termMonths, annualRate);
         }).toThrow("El plazo debe ser por lo menos 12 meses");
     });
 
+    test("validatePlanInputs_AnnualrateGreaterThan36_ThrowsError", () => {
+        //Arrange
+        const amount = 10000;
+        const termMonths = 12;
+        const annualRate = 0.37;
+
+        //Act & Assert
+        expect(() => {
+            validatePlanInputs(amount, termMonths, annualRate);
+        }).toThrow("La tasa de interes anual debe ser mayor a 0% y menor a 36%");
+    });
 });
