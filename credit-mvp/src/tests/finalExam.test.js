@@ -10,8 +10,8 @@ describe("finalExam.test.js", () => {
 
         //Act & Assert
         expect(() => {
-            generateSchedule(amount, termMonths, annualRate)
-        }).toThrow("El plazo debe ser por lo menos 12 meses")
+            validatePlanInputs(amount, termMonths, annualRate)
+        }).toThrow("El plazo debe ser por lo menos 12 meses");
     });
 
 });
