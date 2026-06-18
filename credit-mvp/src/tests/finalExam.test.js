@@ -1,11 +1,8 @@
-import {
-    generateSchedule,
-    generateSimpleSchedule
-} from "../services/paymentPlanService";
+
 
 describe("finalExam.test.js", () => {
     
-    test("generateSchedule_TermLessThan12Months_ThrowsError", () => {
+    test("validatePlanInputs_TermLessThan12Months_ThrowsError", () => {
         //Arrange
         const amount = 10000;
         const termMonths = 6;
