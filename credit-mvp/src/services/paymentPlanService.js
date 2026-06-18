@@ -51,6 +51,12 @@ export const generateSchedule = (amount, termMonths, annualRate) => {
   };
 };
 
+export const validatePlanInputs = (amount, termMonths, annualRate) => {
+  if(termMonths < 12) {
+    throw new Error("El plazo debe ser por lo menos 12 meses");
+  }
+};
+
 export const generateSimpleSchedule = (amount, termMonths, annualRate) => {
   if (termMonths <= 0) {
     throw new Error("Invalid term months");
