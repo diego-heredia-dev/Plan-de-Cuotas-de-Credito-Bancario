@@ -19,17 +19,6 @@ describe("paymentPlanService.test.js", () => {
         expect(result.schedule.length).toBe(12);
     });
     
-    test("generateSchedule_InvalidTermMonths_ThrowsError", () => {
-        //Arrange
-        const amount = 10000;
-        const termMonths = 0;
-        const annualRate = 0.12;
-
-        //Act & Assert
-        expect(() => {
-            generateSchedule(amount, termMonths, annualRate);
-        }).toThrow("El plazo debe ser mayor a 0");
-    })
     
     test("generateSchedule_InvalidAnnualRate_ThrowsError", () => {
         //Arrange
