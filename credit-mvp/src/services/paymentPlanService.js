@@ -1,3 +1,5 @@
+const MAX_ANNUAL_RATE = 0.36;
+
 export const generateSchedule = (amount, termMonths, annualRate) => {
   validatePlanInputs(amount, termMonths, annualRate);
   
@@ -53,7 +55,7 @@ export const validatePlanInputs = (amount, termMonths, annualRate) => {
     throw new Error("La tasa de interes anual debe ser mayor a 0");
   }
 
-  if (annualRate >= 0.36) {
+  if (annualRate >= MAX_ANNUAL_RATE) {
     throw new Error("La tasa de interes anual debe ser mayor a 0% y menor a 36%");
   }
 };
