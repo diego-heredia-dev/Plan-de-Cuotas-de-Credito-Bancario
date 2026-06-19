@@ -61,11 +61,11 @@ export const validatePlanInputs = (amount, termMonths, annualRate) => {
 };
 
 export const validateClientExists = (clientDNI, clients) => {
-  const clientExist = clients.some(
+  const clientExists = clients.some(
     (client) => client.dni === clientDNI
   );
 
-  if (!clientsExist) {
+  if (!clientExists) {
     throw new Error("El cliente no existe");
   }
 };
