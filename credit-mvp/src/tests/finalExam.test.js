@@ -28,4 +28,20 @@ describe("finalExam.test.js", () => {
             validatePlanInputs(amount, termMonths, annualRate);
         }).toThrow("La tasa de interes anual debe ser mayor a 0% y menor a 36%");
     });
+
+    test("validateClientExists_NonExistingClient_ThrowsError", () => {
+        //Arrange
+        const clientDNI = 1111111;
+
+        const clients = 
+        [
+            {dni: "123"},
+            {dni: "456"}
+        ];
+
+        //Act & Assert
+        expect(() => {
+            validateClientExists(clientDNI, clients);
+        }).toThrow("El cliente no existe");
+    });
 });
