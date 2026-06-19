@@ -32,7 +32,7 @@ describe("finalExam.test.js", () => {
 
     test("validateClientExists_NonExistingClient_ThrowsError", () => {
         //Arrange
-        const clientDNI = 1111111;
+        const clientDNI = "111";
 
         const clients = 
         [
