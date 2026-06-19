@@ -41,7 +41,7 @@ export const generateSchedule = (amount, termMonths, annualRate) => {
 };
 
 export const validatePlanInputs = (amount, termMonths, annualRate) => {
-  if(termMonths < 12) {
+  if (termMonths < 12) {
     throw new Error("El plazo debe ser por lo menos 12 meses");
   }
 
@@ -51,6 +51,10 @@ export const validatePlanInputs = (amount, termMonths, annualRate) => {
 
   if (annualRate <= 0) {
     throw new Error("La tasa de interes anual debe ser mayor a 0");
+  }
+
+  if (annualRate >= 0.36) {
+    throw new Error("La tasa de interes anual debe ser mayor a 0% y menor a 36%");
   }
 };
 
