@@ -1,7 +1,8 @@
 import {
     generateSchedule,
     generateSimpleSchedule,
-    validatePlanInputs
+    validatePlanInputs,
+    validateClientExists
 } from "../services/paymentPlanService";
 
 describe("finalExam.test.js", () => {
