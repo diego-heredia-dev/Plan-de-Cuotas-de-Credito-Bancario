@@ -5,7 +5,9 @@ import { useEffect } from "react";
 import "./App.css";
 import {
   generateSchedule,
-  generateSimpleSchedule
+  generateSimpleSchedule,
+  validateClientExists, 
+  validatePlanInputs
 } from './services/paymentPlanService';
 
 let planIdCounter = 1;
@@ -46,21 +48,24 @@ function App() {
       alert("Todos los campos del plan son obligatorios");
       return;
     }
-  
-    if (Number(newPlan.termMonths) < 12) {
-      alert("El plazo debe ser mayor o igual a 12 meses");
+
+    try {
+      validateClientExists(newPlan.clientDni, clients);
+    } catch (error) {
+      alert (error.message);
       return;
     }
-  
-    const annualRate = Number(newPlan.interestRate) / 100;
-  
-    if (annualRate <= 0 || annualRate >= 0.36) {
-      alert("La tasa debe ser mayor a 0% y menor a 36%");
-      return;
-    }
-  
+
     const amount = Number(newPlan.amount);
     const termMonths = Number(newPlan.termMonths);
+    const annualRate = Number(newPlan.interestRate) / 100;
+
+    try {
+      validatePlanInputs(amount, termMonths, annualRate);
+    } catch (error) {
+      alert (error.message);
+      return;
+    }
   
     const result =
       newPlan.interestType === "simple"
