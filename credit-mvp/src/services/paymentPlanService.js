@@ -60,6 +60,16 @@ export const validatePlanInputs = (amount, termMonths, annualRate) => {
   }
 };
 
+export const validateClientExists = (clientDNI, clients) => {
+  const clientExist = clients.some(
+    (client) => client.dni === clientDNI
+  );
+
+  if (!clientsExist) {
+    throw new Error("El cliente no existe");
+  }
+};
+
 export const generateSimpleSchedule = (amount, termMonths, annualRate) => {
   if (termMonths <= 0) {
     throw new Error("Invalid term months");
